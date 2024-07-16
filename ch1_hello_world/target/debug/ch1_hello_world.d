@@ -1,0 +1,1 @@
+/home/zq/work-space/repo/patch-work/rust-projs/rust-by-example/ch1_hello_world/target/debug/ch1_hello_world: /home/zq/work-space/repo/patch-work/rust-projs/rust-by-example/ch1_hello_world/src/lib.rs /home/zq/work-space/repo/patch-work/rust-projs/rust-by-example/ch1_hello_world/src/main.rs
