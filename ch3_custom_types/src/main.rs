@@ -1,3 +1,7 @@
+#![allow(dead_code)]
+
+use std::fs::OpenOptions;
+
 fn main() {
     println!("Hello, world!");
     
@@ -93,6 +97,68 @@ fn structures() {
 }
 
 fn enums() {
+    enum WebEvent {
+        PageLoad,
+        PageUnload,
+        KeyPress(char),
+        Paste(String),
+        Click { x: i64, y: i64 }
+    }
+    
+    fn inspect(event: WebEvent) {
+        match event {
+            WebEvent::PageLoad => println!("page loaded"),
+            WebEvent::PageUnload => println!("page unloaded"),
+            WebEvent::KeyPress(c) => println!("pressed \'{}\'", c),
+            WebEvent::Paste(s) => println!("pasted \"{}\"", s),
+            WebEvent::Click { x, y } => {
+                println!("clicked at x={}, y={}", x, y);
+            },
+        }
+    }
+
+    //print
+    let pressed = WebEvent::KeyPress('x');
+    let pasted = WebEvent::Paste("hello-rust".to_owned());
+    let click = WebEvent::Click { x: 66, y: 88 };
+    let loaded = WebEvent::PageLoad;
+    let unloaded = WebEvent::PageUnload;
+
+    inspect(pressed);
+    inspect(pasted);
+    inspect(click);
+    inspect(loaded);
+    inspect(unloaded);
+
+    //...
+    enum VeryVerboseEnumOfThingsToDoWithNumbers {
+        Add,
+        Subtract,
+    }
+    type Operations = VeryVerboseEnumOfThingsToDoWithNumbers;
+    let add_ops = Operations::Add;
+    let sub_ops = Operations::Subtract;
+    impl VeryVerboseEnumOfThingsToDoWithNumbers {
+        fn run(&self, x: i32, y: i32) -> i32 {
+            match self {
+                Self::Add => x + y,
+                Self::Subtract => x - y,
+            }
+        }
+    }
+    let x = 100;
+    let y = 300;
+    println!("add({}, {}): {}", x, y, add_ops.run(x, y));
+    println!("sub({}, {}): {}", x, y, sub_ops.run(x, y));
+
+    /* use */
+
+
+    /* c-style enum */
+
+
+    /* list impl by enum */
+
     
 }
 
