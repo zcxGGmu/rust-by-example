@@ -152,16 +152,57 @@ fn enums() {
     println!("sub({}, {}): {}", x, y, sub_ops.run(x, y));
 
     /* use */
+    enum Status {
+        Rich,
+        Poor,
+    }
+    enum Work {
+        Coder,
+        Hacker,
+    }
+    use Status::{Rich, Poor};
+    use Work::*;
 
+    let status = Poor;
+    let work = Coder;
+    match status {
+        Rich => println!("I am a richer!"),
+        Poor => println!("I am a poorer!"),
+    }
+    match work {
+        Coder => println!("...coder"),
+        Hacker => println!("...hacker"),   
+    }
 
     /* c-style enum */
-
+    enum Number {
+        Zero,
+        One,
+        Two,
+    }
+    enum Color {
+        Red = 0xff0000,
+        Green = 0x00ff00,
+        Blue = 0x0000ff,
+    }
+    println!("zero: {}", Number::Zero as i32);
+    println!("red: {}", Color::Red as i32);
 
     /* list impl by enum */
-
+    //TODO
     
 }
 
 fn constants() {
+    static LANGUAGE: &'static str = "Rust";
+    const THRESHOLD: i32 = 10;
 
+    fn is_big(n: i32) -> bool {
+        n > THRESHOLD
+    }
+
+    let n = 20;
+    println!("language: {}", LANGUAGE);
+    println!("threshold: {}", THRESHOLD);
+    println!("{} is {}", n, if is_big(n) { "big" } else { "small" });
 }
