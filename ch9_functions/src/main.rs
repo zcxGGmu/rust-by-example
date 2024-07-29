@@ -109,9 +109,20 @@ fn methods_test() {
 }
 
 fn closures_test() {
+    //simple test
+    {
+        fn function(i: i32) -> i32 { i + 1 }
+        let closures_annotated = |i: i32| -> i32 { i + 1 };
+        let closures_inferred = |i| { i + 1 };
 
-    //todo!();
+        let i = 1;
+        println!("function: {}", function(i));
+        println!("closures_annotated: {}", closures_annotated(i));
+        println!("closures_inferred: {}", closures_inferred(i));
 
+        let one = || { 1 };
+        println!("closure returning one: {}", one());
+    }
     capturing_test();
     as_input_parameters_test();
     type_anonymity_test();
