@@ -8,7 +8,7 @@ fn main() {
     for_range_test();
     match_test();
     if_let_test();
-    let_else_test();
+    //let_else_test();
     while_let_test();
 }
 
@@ -230,22 +230,110 @@ fn match_test() {
     }
 
     fn guards_test() {
-        
+        let pair = (2, -2);
+        println!("pair: {:?}", pair);
+        match pair {
+            (x, y) if x == y => println!("x == y"),
+            (x, y) if x + y == 0 => println!("x + y == 0"),
+            (x, _) if x % 2 == 1 => println!("x is odd number"),
+            _ => println!("Nothing..."),
+        }
     } 
 
     fn binding_test() {
-        
+        fn age() -> u32 {
+            15
+        }
+        match age() {
+            0 => println!("age is 0"),
+            n @ 1..=12 => println!("I'm a child of age {:?}", n),
+            n @ 13..=19 => println!("I'm a teen of age {:?}", n),
+            n => println!("I'm an old person of age {:?}", n),
+        }
+
+        // 用绑定来“解构” enum 变体，例如 Option
+        fn some_number() -> Option<u32> {
+            Some(42)
+        } 
+
+        match some_number() {
+            Some(n @ 42) => println!("The Answer: {}", n),
+            Some(n) => println!("Incorrect number: {}", n),
+            _ => (),
+        }
     }
 }
 
 fn if_let_test() {
+    //用 match 匹配枚举类型并不优雅
+    let optional = Some(7);
+    match optional {
+        Some(i) => println!("hello, {}", i),
+        _ => (),
+    }
     
-}
+    //if let 要更简洁，并且允许指明数种失败情形下的选项：
+    let number = Some(9);
+    let letter: Option<i32> = None;
+    let emoticon: Option<i32> = None;
 
-fn let_else_test() {
-    
+    if let Some(i) = number {
+        println!("Matched {:?}!", i);
+    } else {
+        println!("Not matched...");
+    }
+
+    let i_like_letters = false;
+    if let Some(i) = emoticon {
+        println!("Matched {:?}!", i);
+    } else if i_like_letters {
+        println!("Not Matched...");
+    } else {
+        println!("I don't like letters...");
+    }
+
+    //...match enum
+    enum Foo {
+        Bar,
+        Baz,
+        Qux(u32)
+    }
+    let a = Foo::Bar;
+    let b = Foo::Baz;
+    let c = Foo::Qux(100);
+
+    if let Foo::Bar = a {
+        println!("a is foobar");
+    }
+
+    if let Foo::Bar = b {
+        println!("b is foobar");
+    }
+
+    if let Foo::Qux(val) = c {
+        println!("c is {}", val);
+    }
+
+    //...fix
+    let a = Foo::Bar;
+    if let Foo::Bar = a {
+        println!("a is foobar");
+    }
 }
 
 fn while_let_test() {
-    
+    let mut optional = Some(0);
+    while let Some(i) = optional {
+        if i > 9 {
+            println!("Greater than 9, quit...");
+            optional = None;
+        } else {
+            println!("i is {}, try it again...", i);
+            optional = Some(i + 1);
+        }
+    }
+    /*
+        if let 有可选的 else/else if 语句
+        但 while let 没有
+    */
 }
