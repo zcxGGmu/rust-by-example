@@ -11,6 +11,5 @@ Reading in this order might be more effective...
 - [ ] `ch15`: Scoping rules
 - [ ] `ch16`: Traits
 - [ ] `ch14`: Generics
-- [ ] `ch9.2 ~ ch9.4`: Closure
-  - [x] TODO
+- [x] `ch9.2 ~ ch9.4`: Closure
 - [ ] `ch17`: macro_rules!
