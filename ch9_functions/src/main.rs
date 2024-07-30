@@ -129,12 +129,85 @@ fn closures_test() {
     input_functions_test();
     examples_in_std_test();
 
+    // &T / &mut T / T
     fn capturing_test() {
+        use std::mem;
         
+        //...&T
+        println!("/** &T **/");
+        let color = String::from("green");
+        let print = || println!("color: {}", color);
+        print();
+        let re_imutable_borrow = &color;
+        print();
+        println!("re_imutable_borrow color: {}", re_imutable_borrow);
+        let _color_moved = color;
+        println!("color_moved: {}", _color_moved);
+
+        println!("/** &mut T **/");
+        let mut count = 0;
+        let mut inc = || {
+            count += 1;
+            println!("count: {}", count);  
+        };
+        inc();
+        inc();
+        inc();
+        let _mut_reborrow = &mut count;
+        println!("mut_reborrow: {}", _mut_reborrow);
+
+        println!("/** T **/");
+        let movable = Box::new(3);
+        let consume = || {
+            println!("movable: {:?}", movable);
+            mem::drop(movable);
+        };
+        consume();
+        //consume(); //消耗了该变量，所以该闭包只能调用一次。
+
+        let haystack = vec![1, 2, 3];
+        let contains = move |needle| haystack.contains(needle);
+
+        println!("{}", contains(&1));
+        println!("{}", contains(&4));
+        //println!("vec has {} elements.", haystack.len());
     }
 
     fn as_input_parameters_test() {
-        
+        /* 
+        当以闭包作为输入参数时，必须指出闭包的完整类型，
+        它是通过使用以下 trait 中的一种来指定的。其受限制程度按以下顺序递减：
+
+        Fn：表示捕获方式为通过引用（&T）的闭包
+        FnMut：表示捕获方式为通过可变引用（&mut T）的闭包
+        FnOnce：表示捕获方式为通过值（T）的闭包   
+        */
+        fn apply<F>(f: F)
+        where F: FnOnce() {
+            f();
+        }
+        fn apply_to_3<F>(f: F) -> i32
+        where F: Fn(i32) -> i32 {
+            f(3)
+        }
+
+        use std::mem;
+        let greeting = "hello";
+        let mut farewell = "goodbye".to_owned();
+        //引用捕获greeting, 值捕获farewell
+        let diary = || {
+            //...Fn
+            println!("I said {}.", greeting);
+            //...FnMut
+            farewell.push_str("!!!");
+            println!("Then I screamed {}.", farewell);
+            //...FnOnce
+            mem::drop(farewell);
+        };  
+
+        apply(diary); //...闭包入参类型为 FnOnce，闭包 diary 为FnOnce变量
+        let double = |x| x * 2;
+        println!("3 doubled: {}", apply_to_3(double));        
     }
 
     fn type_anonymity_test() {
