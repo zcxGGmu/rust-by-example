@@ -96,17 +96,69 @@ fn visibility_test() {
 }
 
 fn struct_visibility_test() {
-    
+    mod my_mod {
+        pub struct OpenBox<T> {
+            pub contents: T,
+        }
+
+        #[allow(dead_code)]
+        pub struct ClosedBox<T> {
+            contents: T,
+        }
+
+        impl<T> ClosedBox<T> {
+            pub fn new(contents: T) -> ClosedBox<T> {
+                ClosedBox {
+                    contents,
+                }
+            }
+        }
+    }
+
+    {
+        let open_box = my_mod::OpenBox{ contents: "public information" };
+        println!("The open box contains: {}", open_box.contents);
+
+        //let closed_box = my_mod::ClosedBox{ contents: "closed information" };
+        let _closed_box = my_mod::ClosedBox::new("closed information");
+        //println!("The closed box contains: {}", _closed_box.contents);
+    }
 }
 
 fn the_use_declaration_test() {
+    //将 `deeply::nested::function` 路径绑定到 `other_function`
+    use deeply::nested::function as other_function;
     
+    fn function() {
+        println!("called function()...");
+    }
+
+    mod deeply {
+        pub mod nested {
+            pub fn function() {
+                println!("called deeply::nested::function()...");
+            }
+        }
+    }
+
+    {
+        other_function();
+        println!("Entering Block...");
+        {
+            // `use` 绑定拥有局部作用域。在这个例子中，`function()`
+            // 的遮蔽只存在这个代码块中。
+            use deeply::nested::function;
+            function();
+            println!("Leaving Block...");
+        }
+        function();
+    }
 }
 
 fn super_and_self_test() {
-    
+    //https://rustwiki.org/zh-CN/rust-by-example/mod/super.html
 }
 
 fn file_hierarchy_test() {
-    
+    //https://rustwiki.org/zh-CN/rust-by-example/mod/split.html
 }
