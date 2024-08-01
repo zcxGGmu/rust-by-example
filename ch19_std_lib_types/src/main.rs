@@ -104,6 +104,8 @@ fn vectors_test() {
 }
 
 fn strings_test() {
+    // String <=> Vec<u8>
+    // &str <=> &[u8]
     
 }
 
