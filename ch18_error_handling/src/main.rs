@@ -1,3 +1,5 @@
+use std::fmt::Result;
+
 fn main() {
     println!("Hello, world!");
     
@@ -8,7 +10,7 @@ fn error_handling_test() {
     panic_test();
     abort_unwind_test();
     option_unwrap_test();
-    result_test();
+    //result_test();
     multiple_error_types_test();
     iterating_over_results();
 }
@@ -159,16 +161,118 @@ fn option_unwrap_test() {
     }
     {
         //...组合算子 and_then
+        #![allow(dead_code)]
+
+        #[derive(Debug)] enum Food { CordonBleu, Steak, Sushi }
+        #[derive(Debug)] enum Day { Monday, Tuesday, Wednesday }
+
+        //no Sushi
+        fn have_ingredients(food: Food) -> Option<Food> {
+            match food {
+                Food::Sushi => None,
+                _           => Some(food),
+            }
+        }
+
+        //no CordonBleu
+        fn have_recipe(food: Food) -> Option<Food> {
+            match food {
+                Food::CordonBleu => None,
+                _                => Some(food),
+            }
+        }
+
+        fn cookable_v1(food: Food) -> Option<Food> {
+            match have_ingredients(food) {
+                Some(food) => match have_recipe(food) {
+                    Some(food) => Some(food),
+                    None             => None,
+                },
+                None => None,
+            }
+        }
+
+        fn cookable_v2(food: Food) -> Option<Food> {
+            have_ingredients(food).and_then(have_recipe)
+        }
+
+        fn eat(food: Food, day: Day) {
+            match cookable_v2(food) {
+                Some(food) => println!("day: {:?}, food: {:?}", day, food),
+                None             => println!("day: {:?}, we don't eat anything...", day),
+            }
+        }
         
+        let (a, b, c) = (Food::CordonBleu, Food::Steak, Food::Sushi);
+        eat(a, Day::Monday);
+        eat(b, Day::Tuesday);
+        eat(c, Day::Wednesday);
     }
 }
 
 fn result_test() {
-    
+    {
+        // Result<T, E> => Ok<T>, Err<E>
+        // Option<T> => Some<T>, None
+        fn multiply(num_str_1: &str, num_str_2: &str) -> i32 {
+            let num_1 = num_str_1.parse::<i32>().unwrap();
+            let num_2 = num_str_2.parse::<i32>().unwrap();
+            num_1 * num_2
+        }
+
+        let twenty = multiply("10", "2");
+        println!("twenty == {}", twenty);
+        
+        //let tt = multiply("t", "2");
+        //println!("this is a {}", tt);
+    }
+    {
+        // 常规写法，分别处理，提前返回
+        /*
+        use std::num::ParseIntError;
+        fn multiply(num_1_str: &str, num_2_str: &str) -> Result<i32, ParseIntError> {
+            let num_1 = match num_1_str.parse::<i32>() {
+                Ok(num_1) => num_1,
+                Err(e) => return Err(e),  
+            };
+
+            let num_2 = match num_2_str.parse::<i32>() {
+                Ok(num_2) => num_2,
+                Err(e) => return Err(e),
+            };
+
+            Ok(num_1 * num_2)
+        }
+        */
+    }
+    {
+        // ? 可以提前返回; try!是 ? 出现前的写法
+        /*
+        use std::num::ParseIntError;
+        fn multiply(num_1_str: &str, num_2_str: &str) -> Result<i32, ParseIntError> {
+            let num_1 = num_1_str.parse::<i32>()?;
+            let num_2 = num_2_str.parse::<i32>()?;
+            Ok(num_1 * num_2)
+        }
+        */
+    }
 }
 
 fn multiple_error_types_test() {
-    
+    {
+        fn double_first(vec: Vec<&str>) -> i32 {
+            let first = vec.first().unwrap();
+            2 * first.parse::<i32>().unwrap()
+        }
+        let numbers = vec!["42", "93", "18"];
+        let empty = vec![];
+        let strings = vec!["tofu", "93", "18"];
+        println!("the first doubled is {}", double_first(numbers));
+        println!("the first doubled is {}", double_first(empty));
+        println!("the first doubled is {}", double_first(strings));
+    }
+
+    //todo
 }
 
 fn iterating_over_results() {
