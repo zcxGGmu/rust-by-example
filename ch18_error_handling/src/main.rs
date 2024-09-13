@@ -258,23 +258,100 @@ fn result_test() {
     }
 }
 
+use std::num::ParseIntError;
+use std::str::ParseBoolError;
 fn multiple_error_types_test() {
+    // 处理 混合错误类型
     {
         fn double_first(vec: Vec<&str>) -> i32 {
             let first = vec.first().unwrap();
             2 * first.parse::<i32>().unwrap()
         }
         let numbers = vec!["42", "93", "18"];
-        let empty = vec![];
+        //let empty = vec![];
         let strings = vec!["tofu", "93", "18"];
-        println!("the first doubled is {}", double_first(numbers));
-        println!("the first doubled is {}", double_first(empty));
-        println!("the first doubled is {}", double_first(strings));
+        //println!("the first doubled is {}", double_first(numbers));
+        //println!("the first doubled is {}", double_first(empty));
+        //println!("the first doubled is {}", double_first(strings));
     }
+    {
+        //相互包含
+        /*
+        fn double_first(vec: Vec<&str>) -> Option<Result<i32, ParseIntError>> {
+            vec.first().map(|first| {
+                first.parse::<i32>().map(|n| n * 2)
+            })
+        }
+        */
+    }
+    {
+        use std::error;
+        use std::fmt;
 
-    //todo
+        type Result<T> = std::result::Result<T, DoubleError>;
+        
+        #[derive(Debug, Clone)]
+        struct DoubleError;
+
+        impl fmt::Display for DoubleError {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f, "invalid first item to double")
+            }
+        }
+
+        fn double_first(vec: Vec<&str>) -> Result<i32> {
+            vec.first()
+                .ok_or(DoubleError)
+                .and_then(|s| {
+                    s.parse::<i32>()
+                        .map_err(|_| DoubleError)
+                        .map(|i| 2 * i)
+                })
+        }
+
+        fn print(result: Result<i32>) {
+            match result {
+                Ok(n) => println!("first_doubled: {}", n),
+                Err(e) => println!("Error: {}", e),
+            }
+        }
+        
+        let numbers = vec!["11", "22", "33"];
+        //let empty = vec![];
+        let strings = vec!["tofu", "93", "18"];
+        
+        print(double_first(numbers));
+        //print(double_first(empty));
+        //print(double_first(strings));        
+    }
+    {
+        // 包裹错误
+        use std::error;
+        use std::num::ParseIntError;
+        use std::fmt;
+
+        type Result<T> = std::result::Result<T, DoubleError>;
+        
+        #[derive(Debug)]
+        enum DoubleError {
+            EmptyVec,
+            Parse(ParseIntError),
+        }
+
+        impl fmt::Display for DoubleError {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                match *self {
+                    DoubleError::EmptyVec =>
+                        write!(f, "this is a empty_vec..."),
+                    DoubleError::Parse(ref e) => e.fmt(f),
+                }
+            }
+        }
+        
+    }
 }
 
 fn iterating_over_results() {
+    // 遍历 Result
     
 }
