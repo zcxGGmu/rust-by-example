@@ -347,11 +347,74 @@ fn multiple_error_types_test() {
                 }
             }
         }
-        
+
+        impl error::Error for DoubleError {
+            fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+                match *self {
+                    DoubleError::EmptyVec => None,
+                    DoubleError::Parse(ref e) => Some(e),
+                }
+            }
+        }
+
+        impl From<ParseIntError> for DoubleError {
+            fn from(err: ParseIntError) -> DoubleError {
+                DoubleError::Parse(err)
+            }
+        }
+
+        fn double_first(vec: Vec<&str>) -> Result<i32> {
+            let first = vec.first().ok_or(DoubleError::EmptyVec)?;
+            let parsed = first.parse::<i32>()?;
+
+            Ok(2 * parsed)
+        }
+
+        fn print(result: Result<i32>) {
+            match result {
+                Ok(n) => println!("the first doubled: {}", n),
+                Err(e) => println!("Error: {}", e),
+            }
+        }
+
+        let numbers = vec!["42", "93", "18"];
+        let empty = vec![];
+        let strings = vec!["hello", "93", "77"];
+
+        print(double_first(numbers));
+        print(double_first(empty));
+        print(double_first(strings));
     }
 }
 
 fn iterating_over_results() {
     // 遍历 Result
-    
+    {
+        let strings = vec!["tofu", "93", "88"];
+        let numbers: Vec<_> = strings
+            .into_iter()
+            .map(|s| s.parse::<i32>())
+            .collect();
+        println!("Results: {:?}", numbers);
+    }
+    {
+        // 过滤掉 None
+        let strings = vec!["tofu", "93", "88"];
+        let numbers: Vec<_> = strings
+            .into_iter()
+            .filter_map(|s| s.parse::<i32>().ok())
+            .collect();
+        println!("Results: {:?}", numbers);
+    }
+    {
+        /*
+        let strings = vec!["tofu", "93", "88"];
+        let (numbers, errors): (Vec<_>, Vec<_>) = strings
+            .into_iter()
+            .map(|s| s.parse::<i32>())
+            .partition(Result::is_ok);
+        println!("Numbers: {:?}", numbers);
+        println!("Errors: {:?}", errors);
+        */
+    }
 }
